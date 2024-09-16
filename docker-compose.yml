@@ -1,0 +1,51 @@
+version: '3.9'
+services:
+  db:
+    build:
+      context: ./DB
+      dockerfile: Dockerfile
+    container_name: ooo_mysql_container
+    image: ooo_mysql_image
+    ports:
+      - "6603:3306"
+    networks:
+      - ooo_network
+  db_api:
+    build:
+      context: ./DB_API
+      dockerfile: Dockerfile
+    container_name: ooo_api_container
+    image: ooo_api_image
+    ports:
+      - "7777:8000"
+    networks:
+      - ooo_network
+    depends_on:
+      - db 
+  crawl:
+    build:
+      context: ./Crawl
+      dockerfile: Dockerfile
+    container_name: ooo_crawl_container
+    image: ooo_crawl_image
+    ports:
+      - "5555:6666"
+    networks:
+      - ooo_network
+    depends_on:
+      - db_api
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: ooo_web_container
+    image: ooo_web_image
+    ports:
+      - '8000:80'
+    networks:
+      - ooo_network
+    depends_on:
+      - db_api
+networks:
+  ooo_network:
+    driver: bridge
